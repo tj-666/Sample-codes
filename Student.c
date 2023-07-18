@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define MAX_NO_STUDENTS 100
+
 typedef struct Student{
         char name[50];
         int rollNo;
@@ -10,10 +12,11 @@ typedef struct Student{
 }Student;
 
 /*global variables*/
-Student *studentDBS = NULL;      //pointer to database
-int studNo = 0;                         //total number of stduents
+Student *StudentDBS = NULL;      //pointer to database
+int TotalStudents = 0;           //total number of students
 
-void addStudent(){
+void AddStudent(){
+    if(TotalStudents<=MAX_NO_STUDENTS){
 
         Student newStudent;
 
@@ -29,39 +32,43 @@ void addStudent(){
         printf("\nclass name: ");
         scanf("%s", newStudent.className);
 
-        //increment studNo after new student is added successfully
-        studNo = studNo + 1;
-
         //reallocate the database on each new student
-        studentDBS = (Student*)realloc(studentDBS, studNo*sizeof(Student)) ;
+        StudentDBS = (Student*)realloc(StudentDBS, (TotalStudents+1)*sizeof(Student)) ;
 
-        if(studentDBS == NULL){
+        if(StudentDBS != NULL){
+            TotalStudents = TotalStudents+1;
+
+            //add the new student to the database
+            StudentDBS[TotalStudents-1] = newStudent;
+            printf("\nAddStudent SUCCESS\n");
+        }else{
                 printf("\nMemory allocation failed");
-                exit(-1);
         }
-
-        //add the new student to the database
-        studentDBS[studNo-1] = newStudent;
-        printf("\naddStudent SUCCESS\n");
+    }
+    else{
+        printf("\nMaximum number of students in the database.");
+    }
 
 }
 
-void getStudentFromName(){
+void GetStudentFromName(){
         char search[50];        //matchcase
         int flag = 0;           //flag indicating hit or miss
         printf("Enter the student name for searching: ");
         scanf("%s", search);
 
-        //traversal to find matchcase
-        for(int i=0; i<studNo; i++){
-                if(strcmp(studentDBS[i].name, search)==0){
+        /*traversal to find matchcase, exit loop on first hit, program 
+        ignores the successive students with similar names*/
+        /* remove "&&flag!=1" for considering students with same name*/
+        for(int i=0; i<TotalStudents && flag!=1; i++){
+                if(strcmp(StudentDBS[i].name, search)==0){
                         flag = 1;              //hit
 
                         /*display the student details*/
-                        printf("\nName: %s", studentDBS[i].name);
-                        printf("\nrollno: %d", studentDBS[i].rollNo);
-                        printf("\nage: %d", studentDBS[i].age);
-                        printf("\nName: %s", studentDBS[i].className);
+                        printf("\nName: %s", StudentDBS[i].name);
+                        printf("\nrollno: %d", StudentDBS[i].rollNo);
+                        printf("\nage: %d", StudentDBS[i].age);
+                        printf("\nName: %s", StudentDBS[i].className);
                 }
         }
 
@@ -84,10 +91,10 @@ void main() {
 
         switch (choice) {
             case '1':
-                addStudent();
+                AddStudent();
                 break;
             case '2':
-                getStudentFromName();
+                GetStudentFromName();
                 break;
             case '3':
                 printf("Exit.\n");
@@ -99,6 +106,6 @@ void main() {
     } while (choice != '3');
 
     // Free Memory
-    free(studentDBS);
+    free(StudentDBS);
 
 }
